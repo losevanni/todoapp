@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+    <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <title>List</title>
+    </head>
+    <body>
+        <!-- nav html 첨부 -->
+        <%- include('nav.html') %>
+        
+        <h4 class="ml-2 my-3 text-center ">서버에서 가져온 할일 리스트</h4>
+        
+        <div class="container input-group mb-2">
+            <input class="form-control" id="search-input">
+            <button class="input-group-append btn btn-danger" id="search">검색</button>
+        </div>
+        <!-- url search 
+        <script>
+
+        </script> -->
+
+        
+    <div class="container">
+        <ul class="list-group">
+            <% for(var i = 0 ; i < posts.length ; i++){ %>
+            <li class="list-group-item">
+                <p>글번호 : <%= posts[i]._id %></p>
+                <a href="/detail/<%= posts[i]._id %>" ><h4>할일 제목은: <%= posts[i].TITLE %></h4></a>
+                <p>할일 마감 날자: <%= posts[i].DATE %></p>
+                <button class="delete btn btn-danger" data-id="<%= posts[i]._id %>">삭제</button>
+                <!-- <button type="button" >수정</button> -->
+                <button type="button" onclick="location.href='/edit/<%= posts[i]._id %>'" >수정</button>
+            </li>
+            <% } %>
+        </ul>
+    </div>    
+
+    <!-- delete method 사용  -->
+        <script>
+            // delete
+            $('.delete').click(function(e){//class 가 delete인경우에 수행 클릭된 e 는 겍체
+                var num=e.target.dataset.id; //e.target 내가 누른 요소 . dataset.id 는 숨겨진 data-id 를 의미
+                var this_click=$(this); //지금 클릭한 것 의 객체
+                $.ajax({
+                method: 'DELETE',
+                url: '/delete',
+                data: {_id: num } 
+                }).done(function(result){//성공 200
+                    console.log('delete');
+                    this_click.parent('li').fadeOut(); //  button 의 부모 테그 li 를 제거 클릭한 항목 삭제
+                }).fail(function(xhr,textStatus,errorThrown){//실패 400 1 ?  2응답코드 3 error message
+                    console.log('fail'+xhr,textStatus,errorThrown);
+                });
+            });
+            // search
+            $('#search').click(function(){ // id가 search 인경우 에 
+                var input_data = $('#search-input').val(); // id 가 search-input 의 value를 찾아서 input_data에 넣는다
+                window.location.replace('/search?value='+input_data) // 현재페이지의 url을 replace(이거)로 바꾸는 법  get을 /search?value=입력값
+            })
+            // var 자료 ={이름:'값',이름1: '값'}
+            // $.param(자료)
+            // $(폼태그).serialize()
+        </script>
+
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    
+    <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></scrip>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+    -->
+    </body>
+</html>

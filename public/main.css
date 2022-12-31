@@ -1,0 +1,13 @@
+/* static css */
+/* /public/main.css */
+
+/* html head  */
+/* <link rel="stylesheet" href="/public/main.css" > */
+
+/* server.js */
+/* app.use('/public',express.static('public')); */
+
+/*모든 h4 font nanumsquure 사용 단 설치되어있어야만 사용가능 */
+/* h4 {
+    font-family:'nanumsquare';
+} */
