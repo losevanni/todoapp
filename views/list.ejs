@@ -38,6 +38,7 @@
                 <button class="delete btn btn-danger" data-id="<%= posts[i]._id %>">삭제</button>
                 <!-- <button type="button" >수정</button> -->
                 <button type="button" onclick="location.href='/edit/<%= posts[i]._id %>'" >수정</button>
+                <button class="btn btn-secondary chat" data-id="<%= posts[i].user_id %>">채팅</button>
             </li>
             <% } %>
         </ul>
@@ -68,6 +69,13 @@
             // var 자료 ={이름:'값',이름1: '값'}
             // $.param(자료)
             // $(폼태그).serialize()
+
+            $('.chat').click(function(e){
+                var _id=e.target.dataset.id;
+                $.post('/chatroom',{h_id:_id}).then(()=>{
+                    console.log('채팅방 게시물 생성 완료')
+                })
+            });
         </script>
 
 

@@ -12,6 +12,8 @@ app.set('view engine','ejs');
 app.use('/public',express.static('public')); 
 
 app.use('/',require('./routes/shop'));
+
+const { ObjectId }=require('mongodb');
 //이미지 업로드
 let multer =require('multer');
 var storage=multer.diskStorage({ //memoryStorage 는 메모리에 disk는 하드에
@@ -266,3 +268,61 @@ app.get('/search',(req,res)=>{
         res.render('list.ejs',{ posts : result })
     })
 })
+
+app.post('/chatroom',can_login,(req,res)=>{
+    var save_data={
+        TITLE: 'chatroom',
+        DATE: new Date(),
+        member: [ ObjectId(req.body.h_id) ,req.user._id ] // host guest
+    }
+    db.collection('chatroom').insertOne(save_data).then(function(ressult){
+        res.render('chat.ejs',{chat_data: ressult})
+        
+    })
+})
+
+app.get('/chat',can_login,function(req,res){
+    db.collection('chatroom').find({member: req.user._id}).toArray().then((result)=>{
+        res.render('chat.ejs',{data:result})
+    })
+
+})
+
+app.post('/message',can_login,function(req,res){
+    var save_data={
+        parent: req.body.parent ,
+        content: req.body.content ,
+        userid: req.user._id,
+        date: new Date(),
+    }
+    db.collection('message').insertOne(save_data).then(()=>{
+        console.log('message send com')
+    })
+})
+//실시간으로 db에 전송
+//기존거 db에서 실시간으로 가져오기
+app.get('/message/:id',can_login,(req,res)=>{
+    res.writeHead(200,{
+        "Connection": "keep-alive",
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+    })
+    db.collection('message').find({parent: req.params.id}).toArray().then((result)=>{
+        res.write('event: test\n'); 
+        res.write('data:'+JSON.stringify(result)+'\n\n'); // result 는 object 자료형이기에 이를 string으로 바꾸어 주어야한다 JSON.stringfy()사용
+    })
+    //db가 업데이트 되면 실시간으로 갱신
+    const pipeline=[ // 다큐먼트 감시 필드 조건 
+        {$match:{'fullDocument.parent': req.params.id}} //fullDocument.을 붙여주어야한다 그럼 CRUD 가 발생할때마다 밑의 코드가 실행
+    ];
+//전송 버튼 누르면 db에 저장하고 다시 message 가져와 출력
+    const clloection=db.collection('message');
+    const changeStream=clloection.watch(pipeline); //watch db 가 message감
+    changeStream.on('change',(result)=>{ //변경 감지 되면 실행 되는 코드
+        //result.fullDocument 추가된 doucument을 출력하려면 .fullDocument 쓰는이유 그냥 result는 변경 삭제했는지등 다양한 정보들 존재 doucument만 보려면 사용
+        req.write('event: test\n');
+        req.write('data: '+JSON.stringify([result.fullDcument])+'\n\n');
+    });
+});
+
+

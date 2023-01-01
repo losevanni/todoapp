@@ -1,0 +1,139 @@
+
+
+
+
+
+<!doctype html>
+<html>
+    <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<!-- nav -->
+    <title>Register</title>
+    </head>
+    <body>
+        <%- include('nav.html') %>
+
+        <!-- <%= %> -->
+            <div class="container p-4 detail">
+
+                <div class="row">
+                <div class="col-3">
+                    <ul class="list-group chat-list">
+                        <% for (var i=0 ; i< data.length ; i++ ) { %>
+                    <li class="list-group-item parent_id" data-id="<%= data[i]._id %>">
+                        <h6><%= data[i].TITLE%></h6>
+                        <h6 class="text-small"> <%= data[i].member[0] %>채팅방설명 </h6>
+                    </li>
+                    <% } %>
+                    </ul>
+                </div>
+            
+                <div class="col-9 p-0">
+                    <div class="chat-room">
+                        <ul class="list-group chat-content">
+                        <!-- <% for(var i=0; i< ) % -->
+                        <li><span class="chat-box">채팅방1 내용</span></li>
+                        <li><span class="chat-box">채팅방1 내용</span></li>
+
+                        <li><span class="chat-box mine">채팅방1 내용</span></li>
+                        </ul>
+                    <div class="input-group">
+                        <input class="form-control" id="chat-input">
+                        <button class="btn btn-secondary" id="send">전송</button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div> 
+            <script>
+                var parent_id //전역 변수로 사용
+                var event_source
+                $('.liar-group-item').click(function(e){
+                    parent_id=this.dataset.id; //지금 클릭 이벤트 동작 하는곳
+                    $('.chat-content').html('') //다른 쳇팅방 을 클릭하면 html 비우기
+                    if(EventSource!=undefined){ // close  문
+                        eventSource.close()
+                    }
+
+                    event_source=new EventSource('/message/'+parent_id) ; //parent 데이터 보내기
+                    event_source.addEventListener('test',function(e){ //서버가 보낸 데이터 e
+                        // e.data // 데이터
+                        //JSON.parse(e.data) // JSON 으로 온 값을 JSON.parse로 받는다
+                        var get_data=JSON.parse(e.data);
+                        get_data.forEach(function(msg){ // get_data있는 갯수만큼 {} 반복 (msg)는 그 하나하나 의 값들이 들어간다, message가 10개이면 10반복하고 1~10이 msg 에 하나씩 들어간다
+                            $('.chat=content').append('<li><span class="chat-box">'+msg.content+'</span></li>')   //위의 chat-content class에서 <li> html tag추가 하여 값 넣기  msg 는 object msg.content
+                        })
+                    })
+                })
+                $('#send').click(function(){
+                    var chat_data=$('#chat-input').val();
+                    
+                    var send_message={
+                        parent: parent_id,
+                        content: chat_data,
+                    }
+                    $.post('/message',send_message).then(()=>{
+                        console.log('전송 완료')
+                    })
+                })
+            
+            </script>
+
+            <style>
+                .chat-content {
+                height: 450px;
+                overflow-y: scroll;
+                padding: 10px;
+                }
+                .chat-content li {
+                margin-top: 10px;
+                list-style: none;
+                }
+                .text-small {
+                font-size: 12px;
+                color: gray;
+                margin-bottom: 0;
+                }
+                .chat-box {
+                background: #eee;
+                padding: 5px;
+                border-radius: 5px;
+                float: left;
+                }
+                .mine {
+                float: right;
+                } 
+
+            </style>
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+    -->
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
