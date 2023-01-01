@@ -1,5 +1,10 @@
 const express=require('express');
 const app=express();
+//socket.io setting
+const http=require('http').createServer(app);
+const {Server}=require('socket.io')
+const io = new Server(http);
+
 const bodyParser=require('body-parser');
 
 app.use(bodyParser.urlencoded({extended : true}));
@@ -42,10 +47,10 @@ MongoClient.connect('mongodb+srv://vanni_mongodb:longing47@cluster0.yah0zmu.mong
     if(err){return console.log(err)}
     //todoapp 이라는 데이터 베이스에 연결
     db=client.db('todoapp');
-    
+
 
     //연결시 서버 listen
-    app.listen(8080,function(){
+    http.listen(8080,function(){ //app.listen -> http.listen 하면 socket.io사용
         console.log('listening on 8080 port open !')
     });
 })
@@ -81,7 +86,7 @@ app.get('/detail/:id',function(req,res){ // : 아무 문자열이나 id 로 입�
         // console.log(result);
         res.render('detail.ejs',{ data: result})
     })
-    
+
 })
 //edit  1원하는 정보 클릭 2그정보 표시 3값 업데이트
 app.get('/edit/:id',function(req,res){
@@ -325,4 +330,25 @@ app.get('/message/:id',can_login,(req,res)=>{
     });
 });
 
+app.get('/socket',function(req,res){
+    res.render('socket.ejs')
+})
+io.on('connection',function(socket){ // client에서 socket.emit한 값을 socket에 넣고  <- 이게 접속자의 소켓 정보가 같이있다
+    console.log('user connection')
+
+    socket.on('room1-send',function(data){
+        io.to('room1').emit('broadcast',data) // message send 는 room1에있는 사람 만 가능하다
+    })
+    
+    socket.on('joinroom',function(data){ // user가 joinroom 이란 값을 보내면 조인 할 방 생성
+        socket.join('room1');  // cahting room create room1에서 만 chat가능 
+
+    })
+
+    socket.on('user-send',function(data){// 내용에 user-send가 있으면 안에 있는 코드를 실행 data는 유저가 보낸 값
+        console.log(data);
+        io.emit('broadcast',data) //server-> client 전달 io.emit은 접속자 모두에게 전달 data전달할 값 
+        // io.to(socket.id).emit('broadcast',data) // 해당 socket.id를 가진 사람에게만 전송 socket.id <-그중 id값을 목적지로
+    })
+})
 
