@@ -4,7 +4,7 @@ const app=express();
 const http=require('http').createServer(app);
 const {Server}=require('socket.io')
 const io = new Server(http);
-
+const db_config=require('./config/db_config.json')
 const bodyParser=require('body-parser');
 
 app.use(bodyParser.urlencoded({extended : true}));
@@ -40,9 +40,8 @@ var upload=multer({storage: storage});
 
 //db 변수
 var db;
-MongoClient.connect('mongodb+srv://vanni_mongodb:longing47@cluster0.yah0zmu.mongodb.net/?retryWrites=true&w=majority',function(err,client){
-    // mongodb+srv://vanni_mongodb:<password>@cluster0.yah0zmu.mongodb.net/?retryWrites=true&w=majority
-    // mongodb+srv://vanni_mongodb:longing47@cluster0.yah0zmu.mongodb.net/?retryWrites=true&w=majority
+MongoClient.connect('mongodb+srv://vanni_mongodb:'+db_config.pw+'@cluster0.yah0zmu.mongodb.net/?retryWrites=true&w=majority',function(err,client){
+    
     //error 시 에러 출력
     if(err){return console.log(err)}
     //todoapp 이라는 데이터 베이스에 연결
@@ -177,6 +176,11 @@ function can_login(req,res,next){
         res.send('로그인 필요 합니다')
     }
 }
+
+app.get('/test',can_login,(req,res)=>{
+    console.log(typeof(req.user._id))
+    console.log(req.user._id)
+})
 
 // req.body == {title: '' , date: ' '} object 
 // app.post('/add',function(req,res){
@@ -337,7 +341,7 @@ io.on('connection',function(socket){ // client에서 socket.emit한 값을 socke
     console.log('user connection')
 
     socket.on('room1-send',function(data){
-        io.to('room1').emit('broadcast',data) // message send 는 room1에있는 사람 만 가능하다
+        io.to('room1').emit('broadcast',data) // message send 는 room1에 있는 사람 만 가능하다
     })
     
     socket.on('joinroom',function(data){ // user가 joinroom 이란 값을 보내면 조인 할 방 생성
